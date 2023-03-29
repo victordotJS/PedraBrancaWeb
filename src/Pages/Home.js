@@ -55,7 +55,10 @@ function Home() {
 
    const handleEdit = async (id) => {
       await updateDoc(doc(db, 'users', id), {
-          status: "pago"
+          status: "pago",
+          contas_a_pagar: 0,
+          total_a_pagar: 0
+          
       });
       toast.success("Atualizado com sucesso!", {
         position:'top-right',
