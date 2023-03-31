@@ -58,13 +58,18 @@ function Home() {
           status: "pago",
           contas_a_pagar: 0,
           total_a_pagar: 0
-          
       });
       toast.success("Atualizado com sucesso!", {
         position:'top-right',
         autoClose:5000,
         hideProgressBar:false,
         closeOnClick: true})
+       
+        //reload the page
+        setTimeout(() => {
+        window.location.reload();
+        }, "1500");
+        
   };
 
     const handleDelete = async (id) => {
@@ -74,6 +79,11 @@ function Home() {
             autoClose:5000,
             hideProgressBar:false,
             closeOnClick: true})
+          
+            //reload the page
+            setTimeout(() => {
+              window.location.reload();
+              }, "1500");
       };
 
 

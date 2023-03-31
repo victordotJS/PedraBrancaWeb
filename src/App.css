@@ -98,11 +98,23 @@ span {
 .container-items {
   width: 60vh;
   margin:30px;
-  background-color:#f3e9e9;
+  background-image: linear-gradient(to right, #ECE9E6 0%, #FFFFFF  51%, #ECE9E6  100%);
   height: auto;
   padding: 25px;
   text-align: left;
   border-radius: 8px;
+  text-transform: uppercase;
+  background-size: 200% auto;
+  color: black;            
+  box-shadow: 0 0 20px #eee;
+  border-radius: 10px;
+  display: block;
+  transition: background-color, transform 0.8s;
+}
+
+.container-items:hover {
+  background-image: linear-gradient(to right, #ECE9E6 0%, #FFFFFF  51%, #ECE9E6  100%);
+  transform: scale(1.01);
 }
 
 .buttonsUsers {
@@ -115,7 +127,7 @@ span {
   width: 60vh;
   height:60px;
   border: none;
-  background-color: whitesmoke;
+  background-image: linear-gradient(to right, #ECE9E6 0%, #FFFFFF  51%, #ECE9E6  100%);
   padding-left:40px;
   border-radius: 7px;
 }
@@ -164,7 +176,9 @@ span {
   border-radius: 4px;
   border: 0;
   cursor: pointer;
-  background-color: green;
+  background: #348F50;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #56B4D3, #348F50);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #56B4D3, #348F50); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   font-size: 18px;
   transition: background-color, transform 0.8s;
   margin-bottom:25vh;

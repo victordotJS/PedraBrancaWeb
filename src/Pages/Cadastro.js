@@ -12,6 +12,8 @@ import { db } from '../Services/firebase';
 
 import { useNavigate } from "react-router-dom";
 
+import InputMask from 'react-input-mask';
+
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -49,9 +51,9 @@ function Cadastro() {
         autoClose:5000,
         hideProgressBar:false,
         closeOnClick: true});
-        setTimeout(() => {
-          navigate("/");
-        }, "6000");
+        // setTimeout(() => {
+        //   navigate("/");
+        // }, "6000");
     };
 
 
@@ -73,7 +75,8 @@ function Cadastro() {
             type='text'
             placeholder='Insira o endereco'
           />
-          <input
+          <InputMask
+            mask="(99) 99999-9999"
             value={telefone}
             onChange={(e) => setTelefone(e.target.value)}
             className='inputsAdd'
@@ -84,11 +87,11 @@ function Cadastro() {
             value={leituraAnterior}
             onChange={(e) => setLeituraAnterior(e.target.value)}
             className='inputsAdd'
-            type='text'
+            type='number'
             placeholder='Insira a leitura anterior em m³'
           />
           <button className='button' type="submit"> 
-          <h3>Cadastrar</h3>
+          <h3 style={{color:'white'}}>Cadastrar</h3>
           </button>
         </form>
         <ToastContainer></ToastContainer>
