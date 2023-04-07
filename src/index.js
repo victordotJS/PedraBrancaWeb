@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 import Cadastro from "./Pages/Cadastro";
 import Home from "./Pages/Home";
+import Relatorio from "./Pages/Relatorio";
 import Navbar from "./Components/Navbar";
 import "./App.css";
 
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: "cadastro",
         element: <Cadastro />,
+      },
+      {
+        path: "relatorio",
+        element: <Relatorio />,
       },
     ],
   },

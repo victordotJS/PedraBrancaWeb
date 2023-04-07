@@ -101,7 +101,6 @@ function Home() {
             type="text"
             onChange={(e) => setSearch(e.target.value)}
             placeholder='Pesquise aqui...'/>
-            
             <ul>
             {users
               .filter((item) => {
