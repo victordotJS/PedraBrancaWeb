@@ -111,12 +111,11 @@ function Relatorio() {
             const data = await getDocs(usersCollectionRef);
             setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
         }
-        var date = new Date().getDate(); //Current Date
-        var month = new Date().getMonth() + 1; //Current Month
-        var year = new Date().getFullYear(); //Current Year
-        var hours = new Date().getHours(); //Current Hours
-        var min = new Date().getMinutes(); //Current Minutes
-        setDateNow(date + '/' + month + '/' + year + ' ' + hours + ':' + min);
+        var dataAtual = new Date();
+        var date = new Intl.DateTimeFormat('pt-BR', 
+        {dateStyle: 'short'}).format((date));
+        var hours = dataAtual.getHours();
+        setDateNow(date + ' às ' + hours + 'h.');
 
         getUsers();
     }, [])
@@ -131,6 +130,9 @@ function Relatorio() {
         <AiFillPrinter size={30} style={{marginTop:5}} color="white"/>
         </button>
         <div ref={componentRef}>
+        <div style={{textAlign:'end'}}>
+        <h3>Data de emissão: {dateNow}</h3>
+        </div>
         <img src={logo} alt="Logo" style={{
             resizeMode: 'stretch',
             height:'20%',
