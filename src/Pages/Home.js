@@ -59,8 +59,8 @@ function Home() {
           contas_a_pagar: 0,
           total_a_pagar: 0
       });
-      toast.success("Atualizado com sucesso!", {
-        position:'top-right',
+      toast.success("Pago!", {
+        position:'top-center',
         autoClose:5000,
         hideProgressBar:false,
         closeOnClick: true})
@@ -97,17 +97,19 @@ function Home() {
 
     return (
         <div className='home'>
+          <div>
             <input className='searchInput' 
             type="text"
             onChange={(e) => setSearch(e.target.value)}
             placeholder='Pesquise aqui...'/>
+            </div>
             <ul>
             {users
               .filter((item) => {
                 return search.toLowerCase() === ''
                   ? item
                   : item.nome.toLowerCase().includes(search);
-              })
+              }).sort((a, b) => a.nome.localeCompare(b.nome))
               .map((user, index) => (
     
                         <div 
@@ -118,15 +120,23 @@ function Home() {
                             <p className='text'>Leitura: {user.leituraAnterior}m³</p>
                             <p className='text'>Contas a pagar: {user.contas_a_pagar}</p>
                             <p className='text'>Total a pagar: R${user.total_a_pagar}</p>
-                            <p className='text'>Status: <strong>{user.status}</strong></p>
+                            {user.status === "nao-pago" ? (
+        <p  className='text'>Status: <strong style={{color:'red'}}>Não pago</strong></p>
+      ) : (
+        <p className='text'>Status: <strong style={{color:'green'}}>Pago</strong></p>
+      )}
+                          <div style={{textAlign:'end'}}>
                             <button className='buttonsUsers'
+                            data-title="Pagar"
                             onClick={() =>  handleEdit(user.id)}>
                             <AiFillCheckCircle size={30} style={{marginTop:10}} color="green"/>
                             </button>
                             <button className='buttonsUsers'
+                            data-title="Deletar"
                             onClick={() =>  handleDelete(user.id)}>
-                            <AiFillDelete size={30} style={{marginTop:10}} color="red"/>
+                            <AiFillDelete size={30} style={{marginTop:10}} color="red" />
                             </button>
+                            </div>
                     {/* <Modal
                     isOpen={modalIsOpen}
                     onRequestClose={handleModal}

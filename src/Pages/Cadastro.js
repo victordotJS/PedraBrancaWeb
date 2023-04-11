@@ -29,7 +29,11 @@ function Cadastro() {
     const handleCadastro = async (e) => {
       e.preventDefault(e);
       if (nome === '', endereco === '', telefone === '', leituraAnterior === '') {
-        alert('Por favor, preencha todos os campos!');
+        toast.error("Preencha todos os campos!", {
+          position:'top-center',
+          autoClose:5000,
+          hideProgressBar:false,
+          closeOnClick: true})
         return;
       }
       await addDoc(collection(db, 'users'), {
@@ -73,7 +77,7 @@ function Cadastro() {
             onChange={(e) => setEndereco(e.target.value)}
             className='inputsAdd'
             type='text'
-            placeholder='Insira o endereco'
+            placeholder='Insira o endereço'
           />
           <InputMask
             mask="(99) 99999-9999"

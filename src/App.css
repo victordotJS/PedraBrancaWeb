@@ -98,7 +98,6 @@ span {
 .container-items {
   width: 60vh;
   margin:30px;
-  background-image: linear-gradient(to right, #ECE9E6 0%, #FFFFFF  51%, #ECE9E6  100%);
   height: auto;
   padding: 25px;
   text-align: left;
@@ -107,29 +106,55 @@ span {
   background-size: 200% auto;
   color: black;            
   box-shadow: 0 0 20px #eee;
-  border-radius: 10px;
+  border-radius: 5px;
   display: block;
-  transition: background-color, transform 0.8s;
 }
 
-.container-items:hover {
-  background-image: linear-gradient(to right, #ECE9E6 0%, #FFFFFF  51%, #ECE9E6  100%);
-  transform: scale(1.01);
-}
 
 .buttonsUsers {
   border: none;
   background-color: transparent;
-  margin-right:10px
+  margin-right:10px;
+  cursor: pointer;
+  /* transition:transform 0.8s; */
 }
+
+.buttonsUsers:hover {
+  transform: scale(1.25);
+}
+
+[data-title]:hover:after {
+  opacity: 1;
+  transition: all 0.1s ease 0.5s;
+  visibility: visible;
+}
+[data-title]:after {
+  content: attr(data-title);
+  color: #111;
+  font-size: 90%;
+  position: absolute;
+  padding: 1px 5px 2px 5px;
+  bottom: -1.6em;
+  left: 100%;
+  white-space: nowrap;
+  box-shadow: 1px 1px 3px #222222;
+  opacity: 0;
+  border-radius: 5px;
+  z-index: 99999;
+  visibility: hidden;
+}
+[data-title] {
+  position: relative;
+}
+
 
 .searchInput {
   width: 60vh;
   height:60px;
+  margin-top:10px;
   border: none;
-  background-image: linear-gradient(to right, #ECE9E6 0%, #FFFFFF  51%, #ECE9E6  100%);
-  padding-left:40px;
-  border-radius: 7px;
+  padding-left:20px;
+  box-shadow: 0 0 20px #eee;
 }
 
 .cadastro {
@@ -164,6 +189,7 @@ span {
   border: none;
   background-color: whitesmoke;
   border-radius: 7px;
+  cursor: pointer;
 }
 
 .title {

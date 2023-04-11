@@ -149,7 +149,7 @@ function Relatorio() {
         </tr>
       </thead>
       <tbody>
-      {users.map((user) => (
+      {users.sort((a, b) => a.nome.localeCompare(b.nome)).map((user) => (
         <tr key={user.id}>
           <td>{user.nome}</td>
           <td>{user.telefone}</td>
