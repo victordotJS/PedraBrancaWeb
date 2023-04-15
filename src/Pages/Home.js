@@ -53,10 +53,14 @@ function Home() {
         getUsers();
     }, [])
 
-   const handleEdit = async (id) => {
+   const handleEdit = async (id, total_a_pagar, valorAnterior) => {
+    // var parserdAnt = parseInt(valorAnterior)
+    // var parsedAcc = parseInt(total_a_pagar)
+    // let valor = par + total_a_pagar
       await updateDoc(doc(db, 'users', id), {
           status: "pago",
           contas_a_pagar: 0,
+          valorAnterior: total_a_pagar,
           total_a_pagar: 0
       });
       toast.success("Pago!", {
@@ -128,7 +132,7 @@ function Home() {
                           <div style={{textAlign:'end'}}>
                             <button className='buttonsUsers'
                             data-title="Pagar"
-                            onClick={() =>  handleEdit(user.id)}>
+                            onClick={() =>  handleEdit(user.id, user.total_a_pagar, user.valorAnterior)}>
                             <AiFillCheckCircle size={30} style={{marginTop:10}} color="green"/>
                             </button>
                             <button className='buttonsUsers'

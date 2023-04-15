@@ -44,6 +44,7 @@ function Cadastro() {
       status: 'nao-pago',
       contas_a_pagar: 0,
       total_a_pagar: 0,
+      valorAnterior: 0,
       created_at: new Date()
       });
       setNome('');

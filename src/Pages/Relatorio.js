@@ -28,6 +28,8 @@ function Relatorio() {
     const usersCollectionRef = collection(db, "users");
     const [dateNow, setDateNow] = useState('');
 
+    const [totalAreceber, setTotalAreceber] = useState(0)
+
     const componentRef = useRef();
 
   const handlePrint = useReactToPrint({
@@ -105,21 +107,34 @@ function Relatorio() {
   //     pdfMake.createPdf(docDefinition).download();
   // }
   
+  const sum = users?.reduce((acc, current) => 
+  acc + current.total_a_pagar, 0) ?? 0;
 
+  //filtering
+
+  let filtered = 
+  users.filter(d => 
+  
+    d.status === 'pago'
+)
+
+  const sum2 = filtered?.reduce((acc, current) => 
+  acc + current.valorAnterior, 0) ?? 0;
+
+  // console.log(sum2)
+  
     useEffect (() => {
         const getUsers = async () => {
             const data = await getDocs(usersCollectionRef);
             setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
         }
+        getUsers();
         var dataAtual = new Date();
         var date = new Intl.DateTimeFormat('pt-BR', 
         {dateStyle: 'short'}).format((date));
         var hours = dataAtual.getHours();
         setDateNow(date + ' às ' + hours + 'h.');
-
-        getUsers();
     }, [])
-
 
   return (
     <div className='relatorio'>
@@ -166,7 +181,20 @@ function Relatorio() {
         </tr>
         ))}
       </tbody>
-    </table></div>
+    </table>
+    <div>
+    <hr
+        style={{
+          background: 'black',
+          color: 'black',
+          borderColor: 'black',
+          height: '3px',
+        }}
+      />
+      <h3 style={{margin:20}}>Total recebido: R${sum2},00</h3>
+      <h3 style={{margin:20}}>Total a receber: R${sum},00</h3>
+    </div>
+    </div>
     </div>
   );
 }
