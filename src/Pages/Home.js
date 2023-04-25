@@ -1,5 +1,10 @@
 import React, { useState, useEffect} from 'react'
-import { AiFillCheckCircle, AiFillDelete, AiOutlineClose} from 'react-icons/ai';
+import { AiFillCheckCircle, AiFillDelete} from 'react-icons/ai';
+
+import { FaPenSquare } from 'react-icons/fa'
+
+import ModalConfirm from '../Components/Modal';
+import ModalEdit from '../Components/ModalEdit';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,35 +20,22 @@ import {
 } from 'firebase/firestore';
 
 import Modal from 'react-modal';
+import "../App.css";
 
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: '50%',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    flexDirection:'column',
-    border:'none',
-    backgroundColor:"white",
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding:20,
-    textAlign:'center',
-    borderRadius:10,
-  },
-};
 
-// Make sure to bind modal to your appElement (https://reactcommunity.org/react-modal/accessibility/)
 Modal.setAppElement('#root');
+
 
 function Home() {
     const [users, setUsers] = useState([]);
     const usersCollectionRef = collection(db, "users");
     const [search, setSearch] = useState('');
     const [modalIsOpen, setIsOpen] = useState(false)
-    const [status, setStatus] = useState('')
+    const [modalEditIsOpen, setEditIsOpen] = useState(false)
+    const [arrDetails, setArrDetails] = useState([]);
+    const [userId, setUserId] = useState(undefined)
+    const [totalAPagar, setTotalAPagar] = useState(undefined)
+    const [contasApagar, setContasApagar] = useState(undefined)
 
     useEffect (() => {
         const getUsers = async () => {
@@ -52,29 +44,6 @@ function Home() {
         }
         getUsers();
     }, [])
-
-   const handleEdit = async (id, total_a_pagar, valorAnterior) => {
-    // var parserdAnt = parseInt(valorAnterior)
-    // var parsedAcc = parseInt(total_a_pagar)
-    // let valor = par + total_a_pagar
-      await updateDoc(doc(db, 'users', id), {
-          status: "pago",
-          contas_a_pagar: 0,
-          valorAnterior: total_a_pagar,
-          total_a_pagar: 0
-      });
-      toast.success("Pago!", {
-        position:'top-center',
-        autoClose:5000,
-        hideProgressBar:false,
-        closeOnClick: true})
-       
-        //reload the page
-        setTimeout(() => {
-        window.location.reload();
-        }, "1500");
-        
-  };
 
     const handleDelete = async (id) => {
         await deleteDoc(doc(db, 'users', id));
@@ -91,13 +60,21 @@ function Home() {
       };
 
 
-      // function handleModal() {
-      //   setIsOpen(!modalIsOpen);
-      // }
+      function handleModal() {
+        setIsOpen(!modalIsOpen);
+      }
 
-      // function closeModal() {
-      //   setIsOpen(false)
-      // }
+      function closeModal() {
+        setIsOpen(false)
+      }
+
+      function handleEditModal() {
+        setEditIsOpen(!modalEditIsOpen);
+      }
+
+      function closeEditModal() {
+        setEditIsOpen(false)
+      }
 
     return (
         <div className='home'>
@@ -119,10 +96,31 @@ function Home() {
                         <div 
                         key={index}
                         className='container-items'>
+                          
+                          <ModalConfirm
+                         show={modalIsOpen}
+                         onHide={closeModal}
+                         details={arrDetails}
+                         contasapagar={contasApagar}
+                         id={userId}
+                         totalapagar={totalAPagar}
+                          />
+
+                          <ModalEdit
+                          className="modaledit"
+                          showEdit={modalEditIsOpen}
+                          onEditHide={closeEditModal}
+                          idEdit={userId}
+                          userName={user.nome}
+                          userPhone={user.telefone}
+                          userAdress={user.endereco}
+                          userLeituraAnterior={user.leituraAnterior}
+                          />
+
                             <h3>{user.nome}</h3>
                             <p className='text'>Telefone: {user.telefone}</p>
                             <p className='text'>Leitura: {user.leituraAnterior}m³</p>
-                            <p className='text'>Contas a pagar: {user.contas_a_pagar}</p>
+                            <p className='text'>Contas a pagar: {user.contas.length}</p>
                             <p className='text'>Total a pagar: R${user.total_a_pagar}</p>
                             {user.status === "nao-pago" ? (
         <p  className='text'>Status: <strong style={{color:'red'}}>Não pago</strong></p>
@@ -130,55 +128,40 @@ function Home() {
         <p className='text'>Status: <strong style={{color:'green'}}>Pago</strong></p>
       )}
                           <div style={{textAlign:'end'}}>
+                            
+                            {/* edit */}
+                          <button className='buttonsUsers'
+                            data-title="Editar"
+                            onClick={() =>  {
+                              setUserId(user.id)
+                              handleEditModal()
+                              }
+                              }>
+                            <FaPenSquare size={30} style={{marginTop:10}} color="#cc9f18" />
+                            </button>
+
+                            {/* payment */}
                             <button className='buttonsUsers'
                             data-title="Pagar"
-                            onClick={() =>  handleEdit(user.id, user.total_a_pagar, user.valorAnterior)}>
+                            onClick={() =>  {
+                            setArrDetails(user.contas);
+                            setUserId(user.id)
+                            setTotalAPagar(user.total_a_pagar)
+                            setContasApagar(user.contas.length)
+                            // console.log(user.contas)
+                            handleModal()
+                            }
+                            }>
                             <AiFillCheckCircle size={30} style={{marginTop:10}} color="green"/>
                             </button>
+                            
+                            {/* delete */}
                             <button className='buttonsUsers'
                             data-title="Deletar"
                             onClick={() =>  handleDelete(user.id)}>
                             <AiFillDelete size={30} style={{marginTop:10}} color="red" />
                             </button>
                             </div>
-                    {/* <Modal
-                    isOpen={modalIsOpen}
-                    onRequestClose={handleModal}
-                    style={customStyles}>
-        
-            <button onClick={closeModal} style={{border:'none', backgroundColor:"transparent"}}>
-                <AiOutlineClose size={30} color="black"/>
-            </button>
-            
-                <h2>{user.nome}</h2>
-                <form className='form'>
-                <input className='inputsEdit'
-                placeholder='Insira o nome do proprietário'
-                />
-                <input className='inputsEdit'
-                placeholder='Insira o endereço do proprietário'
-                />
-                <input className='inputsEdit'
-                placeholder='Insira o telefone do proprietário'
-                />
-                <input className='inputsEdit'
-                placeholder='Insira a leitura do proprietário'
-                />
-                
-            <select name='Status'
-                className='select' 
-                value={status}
-                onChange={text => setStatus(text.target.value)}
-                >
-                <option value="">Status</option>
-                <option value="pago">Pago</option>
-                <option value="nao-pago">Não pago</option>
-                </select>
-                </form>
-                <button
-                 onClick={() =>  handleEdit(user.id)}
-                ><h2>FINALIZAR</h2></button>
-                </Modal> */}
                         </div>
                         
                     ))}

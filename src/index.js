@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   createBrowserRouter,
@@ -12,44 +12,73 @@ import Cadastro from "./Pages/Cadastro";
 import Home from "./Pages/Home";
 import Relatorio from "./Pages/Relatorio";
 import Navbar from "./Components/Navbar";
+import Login from "./Pages/Login";
 import "./App.css";
 
-const AppLayout = () => (
-  <>
-    <Navbar />
-    <Outlet />
-  </>
-);
+import { auth } from './Services/firebase'
 
-// const router = createBrowserRouter(
-//   createRoutesFromElements(
-//     <Route element={<AppLayout />}>
-//       <Route path="/" element={<Home />} />
-//       <Route path="/products" element={<Products />} />
-//       <Route path="/reports" element={<Reports />} />
-//     </Route>
-//   )
-// );
+import { Navigate } from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
       {
-        path: "/",
+        path: 'home',
         element: <Home />,
       },
       {
-        path: "cadastro",
+        path: 'cadastro',
         element: <Cadastro />,
       },
       {
-        path: "relatorio",
+        path: 'relatorio',
         element: <Relatorio />,
+      },
+      {
+        path: 'login',
+        element: <Login />,
+      },
+      {
+        path: '/',
+        element: <ProtectedRoute />,
       },
     ],
   },
 ]);
+
+function AppLayout() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      setLoggedIn(!!user);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  return (
+    <>
+      {loggedIn && <Navbar />}
+      <Outlet />
+    </>
+  );
+}
+
+function ProtectedRoute() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      setLoggedIn(!!user);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  return loggedIn ? <Navigate to="/home" /> : <Navigate to="/login" />;
+}
 
 createRoot(document.getElementById("root")).render(
   <RouterProvider router={router} />

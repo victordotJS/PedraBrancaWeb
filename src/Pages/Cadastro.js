@@ -45,6 +45,9 @@ function Cadastro() {
       contas_a_pagar: 0,
       total_a_pagar: 0,
       valorAnterior: 0,
+      contas: [
+        
+      ],
       created_at: new Date()
       });
       setNome('');
