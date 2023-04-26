@@ -21,17 +21,25 @@ import {
 
 function ModalEdit(props) {
   
-  const [nome, setNome] = useState(props.userName)
-  const [endereco, setEndereco] = useState(props.userAdress)
-  const [telefone, setTelefone] = useState(props.userPhone)
-  const [leituraAnterior, setLeituraAnterior] = useState(props.userLeituraAnterior + 'm³')
-    
+  const [nome, setNome] = useState('');
+  const [endereco, setEndereco] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [leituraAnterior, setLeituraAnterior] = useState('');
+
+  useEffect(() => {
+    setNome(props.userName);
+    setEndereco(props.userAdress)
+    setTelefone(props.userPhone)
+    setLeituraAnterior(props.userLeituraAnterior)
+  }, [props.userName, props.userAdress, props.userPhone, props.userLeituraAnterior]);
+  
 
   const handleEdit = async (id) => {
       await updateDoc(doc(db, 'users', props.idEdit), {
           nome: nome,
           endereco: endereco,
-          telefone: telefone
+          telefone: telefone,
+          leituraAnterior: leituraAnterior
       });
       toast.warn("Atualizado!", {
         position:'top-center',
@@ -45,6 +53,7 @@ function ModalEdit(props) {
         }, "500");
         
   };
+
 
  return (
         
@@ -64,23 +73,31 @@ function ModalEdit(props) {
 
         <div className='editarea'>
             <h2 style={{marginBottom:10}}>Editar dados do Proprietário</h2>
-            <input className='inputedit' 
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            placeholder='Insira o novo nome do proprietário'/>
-            <InputMask className='inputedit'
-            mask="(99) 99999-9999" 
-            value={telefone}
-            onChange={(e) => setTelefone(e.target.value)}
-            placeholder='Insira o novo telefone do proprietário'/>
-            <input className='inputedit' 
-            value={endereco}
-            onChange={(e) => setEndereco(e.target.value)}
-            placeholder='Insira o novo endereço do proprietário'/>
-            <input className='inputedit' 
-            value={leituraAnterior}
-            onChange={(e) => setLeituraAnterior(e.target.value)}
-            placeholder='Insira a nova leitura do proprietário'/>
+            <input
+      className='inputedit' 
+      value={nome}
+      onChange={(e) => setNome(e.target.value)}
+      placeholder='Insira o novo nome do proprietário'
+    />
+    <InputMask 
+      className='inputedit'
+      mask="(99) 99999-9999" 
+      value={telefone}
+      onChange={(e) => setTelefone(e.target.value)}
+      placeholder='Insira o novo telefone do proprietário'
+    />
+    <input 
+      className='inputedit' 
+      value={endereco}
+      onChange={(e) => setEndereco(e.target.value)}
+      placeholder='Insira o novo endereço do proprietário'
+    />
+    <input 
+      className='inputedit' 
+      value={leituraAnterior}
+      onChange={(e) => setLeituraAnterior(e.target.value)}
+      placeholder='Insira a nova leitura do proprietário'
+    />
             <button
         className="buttonEdit"
         onClick={() =>  handleEdit(props.idEdit)}

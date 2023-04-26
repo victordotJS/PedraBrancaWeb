@@ -32,8 +32,14 @@ function Home() {
     const [search, setSearch] = useState('');
     const [modalIsOpen, setIsOpen] = useState(false)
     const [modalEditIsOpen, setEditIsOpen] = useState(false)
+
     const [arrDetails, setArrDetails] = useState([]);
     const [userId, setUserId] = useState(undefined)
+    const [userIdEdit, setUserIdEdit] = useState('')
+    const [nome, setNome] = useState('')
+    const [endereco, setEndereco] = useState('')
+    const [telefone, setTelefone] = useState('')
+    const [leituraAnterior, setLeituraAnterior] = useState('')
     const [totalAPagar, setTotalAPagar] = useState(undefined)
     const [contasApagar, setContasApagar] = useState(undefined)
 
@@ -110,11 +116,11 @@ function Home() {
                           className="modaledit"
                           showEdit={modalEditIsOpen}
                           onEditHide={closeEditModal}
-                          idEdit={userId}
-                          userName={user.nome}
-                          userPhone={user.telefone}
-                          userAdress={user.endereco}
-                          userLeituraAnterior={user.leituraAnterior}
+                          idEdit={userIdEdit}
+                          userName={nome}
+                          userPhone={telefone}
+                          userAdress={endereco}
+                          userLeituraAnterior={leituraAnterior}
                           />
 
                             <h3>{user.nome}</h3>
@@ -133,7 +139,11 @@ function Home() {
                           <button className='buttonsUsers'
                             data-title="Editar"
                             onClick={() =>  {
-                              setUserId(user.id)
+                              setUserIdEdit(user.id)
+                              setNome(user.nome)
+                              setEndereco(user.endereco)
+                              setTelefone(user.telefone)
+                              setLeituraAnterior(user.leituraAnterior)
                               handleEditModal()
                               }
                               }>
