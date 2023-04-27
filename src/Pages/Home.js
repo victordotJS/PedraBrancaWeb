@@ -42,6 +42,7 @@ function Home() {
     const [leituraAnterior, setLeituraAnterior] = useState('')
     const [totalAPagar, setTotalAPagar] = useState(undefined)
     const [contasApagar, setContasApagar] = useState(undefined)
+    const [contasPagas, setContasPagas] = useState(undefined)
 
     useEffect (() => {
         const getUsers = async () => {
@@ -110,6 +111,7 @@ function Home() {
                          contasapagar={contasApagar}
                          id={userId}
                          totalapagar={totalAPagar}
+                         contasPagas={contasPagas}
                           />
 
                           <ModalEdit
@@ -158,6 +160,7 @@ function Home() {
                             setUserId(user.id)
                             setTotalAPagar(user.total_a_pagar)
                             setContasApagar(user.contas.length)
+                            setContasPagas(user.contasPagas)
                             // console.log(user.contas)
                             handleModal()
                             }

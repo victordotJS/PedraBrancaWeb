@@ -10,10 +10,11 @@ import {
   doc,
   deleteDoc,
   getDocs,
-  updateDoc
+  updateDoc,
+  writeBatch
 } from 'firebase/firestore';
 
-import { AiFillPrinter } from 'react-icons/ai';
+import { AiFillPrinter, AiFillCheckCircle } from 'react-icons/ai';
 
 import { useReactToPrint } from 'react-to-print'
 import logo from '../Assets/logo.png'
@@ -28,7 +29,7 @@ function Relatorio() {
     const usersCollectionRef = collection(db, "users");
     const [dateNow, setDateNow] = useState('');
 
-    const [totalAreceber, setTotalAreceber] = useState(0)
+    const [totalRecebido, setTotalRecebido] = useState(0)
 
     const componentRef = useRef();
 
@@ -42,70 +43,6 @@ function Relatorio() {
       closeOnClick: true})
   })
   
-  //   function createPDF(users) {
-
-  //     const reportTitle = [
-  //         {
-  //             text: 'Relatório Mensal',
-  //             fontSize: 15,
-  //             bold: true,
-  //             margin: [15, 20, 0, 45] // left, top, right, bottom
-  //         }
-  //     ];
-  
-  //     const dados = users.map((user) => {
-  //         return [
-  //             {text: user.nome, fontSize: 9, margin: [0, 2, 0, 2]},
-  //             {text: user.telefone, fontSize: 9, margin: [0, 2, 0, 2]},
-  //             {text: user.leitura, fontSize: 9, margin: [0, 2, 0, 2]},
-  //             {text: user.contas_a_pagar, fontSize: 9, margin: [0, 2, 0, 2]},
-  //             {text: user.total_a_pagar, fontSize: 9, margin: [0, 2, 0, 2]}
-  //         ] 
-  //     });
-  
-  //     const details = [
-  //         {
-  //             table:{
-  //                 headerRows: 1,
-  //                 widths: ['*', '*', '*', '*', '*'],
-  //                 body: [
-  //                     [
-  //                         {text: 'Nome', style: 'tableHeader', fontSize: 10},
-  //                         {text: 'Telefone', style: 'tableHeader', fontSize: 10},
-  //                         {text: 'Leitura', style: 'tableHeader', fontSize: 10},
-  //                         {text: 'Contas a pagar', style: 'tableHeader', fontSize: 10},
-  //                         {text: 'Valor', style: 'tableHeader', fontSize: 10},
-  //                         {text: 'Status', style: 'tableHeader', fontSize: 10}
-  //                     ],
-  //                     ...dados
-  //                 ]
-  //             },
-  //             layout: 'lightHorizontalLines' // headerLineOnly
-  //         }
-  //     ];
-  
-  //     function Rodape(currentPage, pageCount){
-  //         return [
-  //             {
-  //                 text: currentPage + ' / ' + pageCount,
-  //                 alignment: 'right',
-  //                 fontSize: 9,
-  //                 margin: [0, 10, 20, 0] // left, top, right, bottom
-  //             }
-  //         ]
-  //     }
-  
-  //     const docDefinition = {
-  //         pageSize: 'A4',
-  //         pageMargins: [15, 50, 15, 40],
-  
-  //         header: [reportTitle],
-  //         content: [details],
-  //         footer: Rodape
-  //     }
-  
-  //     pdfMake.createPdf(docDefinition).download();
-  // }
   
   const sum = users?.reduce((acc, current) => 
   acc + current.total_a_pagar, 0) ?? 0;
@@ -118,8 +55,8 @@ function Relatorio() {
     d.status === 'pago'
 )
 
-  const sum2 = filtered?.reduce((acc, current) => 
-  acc + current.valorAnterior, 0) ?? 0;
+  // const sum2 = filtered?.reduce((acc, current) => 
+  // acc + current.valorAnterior, 0) ?? 0;
 
   // console.log(sum2)
   
@@ -129,6 +66,7 @@ function Relatorio() {
             setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
         }
         getUsers();
+        sumArray();
         var dataAtual = new Date();
         var date = new Intl.DateTimeFormat('pt-BR', 
         {dateStyle: 'short'}).format((date));
@@ -136,13 +74,61 @@ function Relatorio() {
         setDateNow(date + ' às ' + hours + 'h.');
     }, [])
 
+
+    async function sumArray() {
+      const querySnapshot = await getDocs(usersCollectionRef);
+      let sum = 0;
+      querySnapshot.forEach((doc) => {
+        const array = doc.data().contasPagas; // substitua pelo nome do seu array
+        array.forEach((item) => {
+          sum += item.valor; // substitua "valor" pela propriedade que você deseja somar
+        });
+      });
+      setTotalRecebido(sum)
+    }
+
+    async function closeRelatory() {
+      const usersCollectionRef = collection(db, "users");
+      const querySnapshot = await getDocs(usersCollectionRef);
+      
+      const batch = writeBatch(db);
+      
+      querySnapshot.forEach((doc) => {
+        const userRef = doc.ref;
+        const contasPagas = doc.data().contasPagas;
+        
+        if (contasPagas.length > 0) {
+          batch.update(userRef, {
+            contasPagas: []
+          });
+        }
+      });
+      
+      await batch.commit();
+      
+      toast.success("Relatório mensal finalizado!", {
+        position:'top-right',
+        autoClose:5000,
+        hideProgressBar:false,
+        closeOnClick: true})
+        setTimeout(() => {
+          window.location.reload();
+          }, "500");
+    }
+
   return (
     <div className='relatorio'>
       <ToastContainer></ToastContainer>
         <h1>Relatório Mensal</h1>
-        
+        <div style={{marginTop:10}}>
+        <button className='closerelatory-button' onClick={() =>  closeRelatory()}>
+          <p style={{color:'#fff', fontWeight:'600'}}>Finalizar o mês</p>
+          <AiFillCheckCircle size={24} style={{marginLeft:7}} color="white"/>
+        </button>
+        </div>
         <button className='print-button' onClick={handlePrint}>
-        <AiFillPrinter size={30} style={{marginTop:5}} color="white"/>
+        <p style={{color:'#fff', fontWeight:'600'}}>Imprimir</p>
+        <AiFillPrinter size={24} style={{marginLeft:7}} color="white"/>
         </button>
         <div ref={componentRef}>
         <div style={{textAlign:'end'}}>
@@ -161,25 +147,30 @@ function Relatorio() {
           <th>Nome</th>
           <th>Telefone</th>
           <th>Leitura</th>
+          <th>Contas Pagas/Valor</th>
           <th>Contas a pagar/Valor</th>
           <th>Status</th>
         </tr>
       </thead>
       <tbody>
-      {users.sort((a, b) => a.nome.localeCompare(b.nome)).map((user) => (
-        <tr key={user.id}>
-          <td>{user.nome}</td>
-          <td>{user.telefone}</td>
-          <td>{user.leituraAnterior}m²</td>
-          <td>({user.contas_a_pagar}) R${user.total_a_pagar}</td>
-          {user.status === "nao-pago" ? (
+      {users.sort((a, b) => a.nome.localeCompare(b.nome)).map((user) => {
+  const somaContasPagas = user.contasPagas.reduce((acc, curr) => acc + curr.valor, 0);
+  return (
+    <tr key={user.id}>
+      <td>{user.nome}</td>
+      <td>{user.telefone}</td>
+      <td>{user.leituraAnterior}m²</td>
+      <td>({user.contasPagas.length}) R${somaContasPagas}</td>
+      <td>({user.contas_a_pagar}) R${user.total_a_pagar}</td>
+      {user.status === "nao-pago" ? (
         <td style={{color:'red'}}>Não Pago</td>
       ) : (
         <td style={{color:'green'}}>Pago</td>
       )}
-          {/* <td>{user.status}</td> */}
-        </tr>
-        ))}
+      {/* <td>{user.status}</td> */}
+    </tr>
+  );
+})}
       </tbody>
     </table>
     <div>
@@ -191,7 +182,7 @@ function Relatorio() {
           height: '3px',
         }}
       />
-      <h3 style={{margin:20}}>Total recebido: R${sum2},00</h3>
+      <h3 style={{margin:20}}>Total recebido: R${totalRecebido},00</h3>
       <h3 style={{margin:20}}>Total a receber: R${sum},00</h3>
     </div>
     </div>

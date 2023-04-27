@@ -27,13 +27,20 @@ function ModalConfirm(props) {
     const handleDeleteOnClick = async () => {
       if (selectedIndex >= 0 && selectedIndex < props.details.length) {
         const newDetails = props.details.filter((_, index) => index !== selectedIndex);
+       const novoValorcontasapagar = props.contasapagar == 0 ? props.contasapagar : props.contasapagar -1
         await updateDoc(doc(db, 'users', props.id), {
+          status: novoValorcontasapagar == 0 ? 'pago' : 'nao-pago',
           valorAnterior: props.totalapagar,
-          contas_a_pagar: props.contasapagar - 1,
+          contas_a_pagar: novoValorcontasapagar,
           total_a_pagar: props.totalapagar - props.details[selectedIndex].valor,
           contas: newDetails,
+          contasPagas: [
+            ...props.contasPagas,
+            props.details[selectedIndex]
+          ]
         });
         window.location.reload();
+        // console.log(props.contasPagas)
       } else {
         console.log('Seleção inválida');
       }
