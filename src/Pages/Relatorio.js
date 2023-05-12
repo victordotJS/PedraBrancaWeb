@@ -4,6 +4,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { db } from '../Services/firebase';
+import { storage } from '../Services/firebase';
+
+import { ref, uploadBytes } from "firebase/storage";
 
 import {
   collection,
@@ -30,6 +33,10 @@ function Relatorio() {
     const [dateNow, setDateNow] = useState('');
 
     const [totalRecebido, setTotalRecebido] = useState(0)
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [isUploading, setIsUploading] = useState(false);
 
     const componentRef = useRef();
 
@@ -87,24 +94,51 @@ function Relatorio() {
       setTotalRecebido(sum)
     }
 
+    function handleOpenModal() {
+      setIsModalOpen(true);
+    }
+  
+    function handleCloseModal() {
+      setIsModalOpen(false);
+    }
+
+    function handleConfirmModal() {
+      closeRelatory();
+      setIsModalOpen(false);
+    }
+
     async function closeRelatory() {
+      setIsUploading(true);
       const usersCollectionRef = collection(db, "users");
       const querySnapshot = await getDocs(usersCollectionRef);
+      const storageRef = ref(storage, `backup/backup.json`);
+
+      const docsArray = querySnapshot.docs.map((doc) => doc.data());
+      const jsonString = JSON.stringify(docsArray);
+
+      const bytes = new TextEncoder().encode(jsonString);
+      const uploadTask = uploadBytes(storageRef, bytes);
+
+      await uploadTask.then((snapshot) => {
+        setIsUploading(false);
       
-      const batch = writeBatch(db);
+        const batch = writeBatch(db);
       
-      querySnapshot.forEach((doc) => {
-        const userRef = doc.ref;
-        const contasPagas = doc.data().contasPagas;
-        
-        if (contasPagas.length > 0) {
-          batch.update(userRef, {
-            contasPagas: []
-          });
-        }
+        querySnapshot.forEach((doc) => {
+          const userRef = doc.ref;
+          const contasPagas = doc.data().contasPagas;
+      
+          if (contasPagas.length > 0) {
+            batch.update(userRef, {
+              contasPagas: []
+            });
+          }
+        });
+      
+        return batch.commit();
+      }).catch((error) => {
+        setIsUploading(false);
       });
-      
-      await batch.commit();
       
       toast.success("Relatório mensal finalizado!", {
         position:'top-right',
@@ -116,12 +150,55 @@ function Relatorio() {
           }, "500");
     }
 
+    function ConfirmModal({ isOpen, onClose, onConfirm }) {
+      if (!isOpen) {
+        return null;
+      }
+    
+      return (
+        <div className="modalConfirmation">
+          <div className="modalConfirmation-content">
+            <h3>Você tem certeza que deseja fechar o relatório mensal?</h3>
+            <div className="modalConfirmation-buttons">
+              <button 
+              className='buttonConfimationRelatory'
+              style={{
+                border:'none', 
+                backgroundColor:'red', 
+                marginRight:20,
+                width:'20%',
+                height:30,
+                borderRadius:7,
+                color:'white',
+                fontSize:16,
+                fontWeight:'bold',
+                cursor:'pointer'
+                }} onClick={onClose}>Não</button>
+              <button 
+              className='buttonConfimationRelatory'
+              style={{
+                border:'none', 
+                backgroundColor:'green',
+                width:'20%',
+                height:30,
+                borderRadius:7,
+                color:'white',
+                fontSize:16,
+                fontWeight:'bold',
+                cursor:'pointer'
+                }} onClick={onConfirm}>Sim</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
   return (
     <div className='relatorio'>
       <ToastContainer></ToastContainer>
         <h1>Relatório Mensal</h1>
         <div style={{marginTop:10}}>
-        <button className='closerelatory-button' onClick={() =>  closeRelatory()}>
+        <button className='closerelatory-button' onClick={() =>  handleOpenModal()}>
           <p style={{color:'#fff', fontWeight:'600'}}>Finalizar o mês</p>
           <AiFillCheckCircle size={24} style={{marginLeft:7}} color="white"/>
         </button>
@@ -130,6 +207,12 @@ function Relatorio() {
         <p style={{color:'#fff', fontWeight:'600'}}>Imprimir</p>
         <AiFillPrinter size={24} style={{marginLeft:7}} color="white"/>
         </button>
+        {isUploading && <h2>Carregando...</h2>}
+        <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmModal}
+      />
         <div ref={componentRef}>
         <div style={{textAlign:'end'}}>
         <h3>Data de emissão: {dateNow}</h3>
@@ -182,8 +265,8 @@ function Relatorio() {
           height: '3px',
         }}
       />
-      <h3 style={{margin:20}}>Total recebido: R${totalRecebido},00</h3>
-      <h3 style={{margin:20}}>Total a receber: R${sum},00</h3>
+      <h3 style={{margin:5}}>Total recebido: R${totalRecebido},00</h3>
+      <h3 style={{margin:5}}>Total a receber: R${sum},00</h3>
     </div>
     </div>
     </div>

@@ -243,7 +243,7 @@ table {
   border-collapse: collapse;
   max-width: 900px;
   width: 100%;
-  margin: 2rem auto;
+  margin: 1rem auto;
 }
 table th, table td {
   border: 1px solid #ddd;
@@ -564,4 +564,43 @@ background: linear-gradient(to right, #99f2c8, #1f4037); /* W3C, IE 10+/ Edge, F
   align-items: center;
   justify-content: center;
   text-align: center;
+}
+
+.closerelatory-button:hover{
+  transform: scale(1.01);
+}
+
+.modalConfirmation {
+  width: 100vw;
+  height: 100%;
+  padding:20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px #eee;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: white;
+  margin-top: 20px;
+  margin-bottom:70px
+}
+
+.modalConfirmation-content{
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding:10px
+}
+
+.modalConfirmation-buttons{
+  width: 100%;
+  margin:10px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  margin-top: 20px;
+}
+
+.buttonConfimationRelatory:hover{
+    transform: scale(1.01);
 }
