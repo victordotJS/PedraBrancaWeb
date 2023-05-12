@@ -6,6 +6,8 @@
   padding: 0;
   font-family: "Lato", sans-serif;
 }
+
+/* Navbar */
 .navbar {
   background-color: #ffffff;
   height: 80px;
@@ -81,14 +83,10 @@ span {
   margin-left: 16px;
 }
 
+/* Home */
 .home {
-  /* display: flex;
-  background-color: #fff;
-  justify-content: center;
-  text-align: center; */
-  height:100vh;
-  width: 100vw;
   height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -97,26 +95,24 @@ span {
 
 .container-items {
   width: 60vh;
-  margin:30px;
+  margin: 30px;
   height: auto;
   padding: 25px;
   text-align: left;
   border-radius: 8px;
   text-transform: uppercase;
   background-size: 200% auto;
-  color: black;            
+  color: black;
   box-shadow: 0 0 20px #eee;
   border-radius: 5px;
   display: block;
 }
 
-
 .buttonsUsers {
   border: none;
   background-color: transparent;
-  margin-right:10px;
+  margin-right: 10px;
   cursor: pointer;
-  /* transition:transform 0.8s; */
 }
 
 .buttonsUsers:hover {
@@ -230,6 +226,61 @@ span {
   padding: 0 8px;
   background-color: whitesmoke;
 }
+@media only screen and (max-width: 768px) {
+  .searchInput {
+    width: 90vw;
+    height: 50px;
+    margin-top: 10px;
+  }
+  
+  .form {
+    max-width: 90vw;
+  }
+  
+  .buttonFinish {
+    width: 90vw;
+    height: 40px;
+    margin-bottom: 10vh;
+  }
+  
+  .inputsAdd, .inputsEdit {
+    height: 35px;
+    font-size: 16px;
+    padding: 0 6px;
+  }
+  
+  .button {
+    height: 35px;
+    font-size: 16px;
+  }
+  
+  .title {
+    margin-bottom: 10px;
+  }
+  
+  .text {
+    margin-top: 3px;
+    font-size: 14px;
+  }
+}
+
+@media only screen and (min-width: 769px) {
+  .searchInput {
+    width: 40vw;
+    height: 60px;
+    margin-top: 10px;
+  }
+  
+  .form {
+    max-width: 600px;
+  }
+  
+  .buttonFinish {
+    width: 50vw;
+    height: 40px;
+    margin-bottom: 25vh;
+  }
+}
 
 .relatorio {
   width: 100%;
@@ -270,6 +321,18 @@ table th, table td {
   transform: scale(1.01);
 }
 
+@media screen and (max-width: 768px) {
+  table {
+    max-width: 600px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  table {
+    max-width: 400px;
+  }
+}
+
 @media print {
   html, body {
     height: 100vh; /* Use 100% here to support printing more than a single page*/
@@ -288,7 +351,6 @@ table th, table td {
 
 
 .modal-overlay {
-  background-color: transparent;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -297,16 +359,18 @@ table th, table td {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 999; /* adicione um índice z alto para colocar o modal na frente de outros elementos */
 }
 
 .modal-content {
-  width: 90%;
-  max-width: 500px;
+  width: 90%; /* ajuste a largura para que fique responsiva */
+  max-width: 600px; /* adicione uma largura máxima para evitar que o modal fique muito grande em telas grandes */
   background-color: white;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px #eee;
+  padding: 20px;
+  border-radius: 10px;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .buttonFinishPayment{
@@ -324,19 +388,74 @@ table th, table td {
   margin-bottom: 10px;
 }
 
+@media screen and (max-width: 480px) {
+  .buttonFinishPayment {
+    font-size: 16px;
+  }
+}
+
 .buttonFinishPayment:hover{
   background-color: green;
 }
 
+.select-container {
+  position: relative;
+}
+
 .select {
-  border: 0.5px solid black;
-  border-radius: 12px;
-  height: 40px;
-  width: 80%;
-  font-size: 18px;
+  display: block;
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: 50px;
+  margin: 20px auto;
   align-self: center;
-  margin:30px;
-  padding-left:10px
+  padding: 0 50px 0 20px; /* Adicionado padding-right de 50px */
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.2;
+  background-color: #fff;
+  background-image: none;
+  border: 2px solid #ccc;
+  border-radius: 30px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-position: right 15px center;
+  background-repeat: no-repeat;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.select:focus {
+  border-color: #7ed957;
+  box-shadow: 0 0 0 3px rgba(126,217,87,0.2);
+  outline: none;
+}
+
+.select option {
+  font-size: 16px;
+  font-weight: normal;
+  color: #333;
+  line-height: 1.2;
+  background-color: #fff;
+}
+
+.select::-ms-expand {
+  display: none;
+}
+
+.select-container {
+  position: relative;
+  display: inline-block;
+}
+
+.select-icon {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .container {
