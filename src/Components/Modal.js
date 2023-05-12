@@ -63,7 +63,7 @@ function ModalConfirm(props) {
        style={{border:'none', 
        backgroundColor:"transparent"}}
        >
-       <AiOutlineClose size={30} color="black" style={{marginBottom:30}}/>
+       <AiOutlineClose size={30} color="black" style={{marginBottom:20}} className='closeModalBtn'/>
        </button>
        
        <select value={selectedIndex} onChange={handleSelectChange} className='select'>

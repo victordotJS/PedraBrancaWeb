@@ -1,7 +1,7 @@
 import React, { useState, useEffect} from 'react'
 import { AiFillCheckCircle, AiFillDelete} from 'react-icons/ai';
 
-import { FaPenSquare } from 'react-icons/fa'
+import { FaPenSquare, FaSearch } from 'react-icons/fa'
 
 import ModalConfirm from '../Components/Modal';
 import ModalEdit from '../Components/ModalEdit';
@@ -90,6 +90,9 @@ function Home() {
             type="text"
             onChange={(e) => setSearch(e.target.value)}
             placeholder='Pesquise aqui...'/>
+            <span className='searchIcon'>
+            <FaSearch color="black" size={20} style={{marginRight:10, marginTop:10}}/>
+            </span>
             </div>
             <ul>
             {users
