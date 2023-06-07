@@ -244,7 +244,7 @@ function Relatorio() {
       <td>{user.telefone}</td>
       <td>{user.leituraAnterior}m²</td>
       <td>({user.contasPagas.length}) R${somaContasPagas}</td>
-      <td>({user.contas_a_pagar}) R${user.total_a_pagar}</td>
+      <td>({user.contas.length}) R${user.total_a_pagar}</td>
       {user.status === "nao-pago" ? (
         <td style={{color:'red'}}>Não Pago</td>
       ) : (
