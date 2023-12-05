@@ -1,10 +1,11 @@
 import React, { useState, useEffect} from 'react'
-import { AiFillCheckCircle, AiFillDelete} from 'react-icons/ai';
+import { AiFillCheckCircle, AiFillDelete, AiFillDollarCircle } from 'react-icons/ai';
 
 import { FaPenSquare, FaSearch } from 'react-icons/fa'
 
 import ModalConfirm from '../Components/Modal';
 import ModalEdit from '../Components/ModalEdit';
+import ModalEditBills from '../Components/ModalBills';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -32,6 +33,7 @@ function Home() {
     const [search, setSearch] = useState('');
     const [modalIsOpen, setIsOpen] = useState(false)
     const [modalEditIsOpen, setEditIsOpen] = useState(false)
+    const [modalBillsIsOpen, setModalBillsIsOpen] = useState(false)
 
     const [arrDetails, setArrDetails] = useState([]);
     const [userId, setUserId] = useState(undefined)
@@ -83,6 +85,14 @@ function Home() {
         setEditIsOpen(false)
       }
 
+      function handleBillsModal() {
+        setModalBillsIsOpen(!modalBillsIsOpen);
+      }
+
+      function closeBillsModal() {
+        setModalBillsIsOpen(false)
+      }
+
     return (
         <div className='home'>
           <div>
@@ -126,6 +136,15 @@ function Home() {
                           userPhone={telefone}
                           userAdress={endereco}
                           userLeituraAnterior={leituraAnterior}
+                          />
+
+                          <ModalEditBills
+                          className="modaledit"
+                          showBills={modalBillsIsOpen}
+                          onShowBillsHide={closeBillsModal}
+                          idEdit={userIdEdit}
+                          totalapagar={totalAPagar}
+                          details={arrDetails}
                           />
 
                             <h3>{user.nome}</h3>
@@ -176,6 +195,18 @@ function Home() {
                             data-title="Deletar"
                             onClick={() =>  handleDelete(user.id)}>
                             <AiFillDelete size={30} style={{marginTop:10}} color="red" />
+                            </button>
+
+                            <button className='buttonsUsers'
+                            data-title="EditBills"
+                            onClick={() =>  {
+                              setUserIdEdit(user.id)
+                              setArrDetails(user.contas);
+                              setTotalAPagar(user.total_a_pagar)
+                              handleBillsModal()
+                              }
+                              }>
+                            <AiFillDollarCircle  size={30} style={{marginTop:10}} color="blue" />
                             </button>
                             </div>
                         </div>

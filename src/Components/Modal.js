@@ -40,7 +40,6 @@ function ModalConfirm(props) {
           ]
         });
         window.location.reload();
-        // console.log(props.contasPagas)
       } else {
         console.log('Seleção inválida');
       }
@@ -81,7 +80,6 @@ function ModalConfirm(props) {
       >
         <h3 style={{ color: 'black' }}>Pagar</h3>
       </button>
-        
         </Modal> 
                 
     )}
