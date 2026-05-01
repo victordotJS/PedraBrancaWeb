@@ -11,6 +11,7 @@ import { ref, uploadBytes } from "firebase/storage";
 import {
   collection,
   doc,
+  deleteDoc,
   getDocs,
   updateDoc,
   writeBatch,
