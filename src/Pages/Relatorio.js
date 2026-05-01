@@ -14,7 +14,8 @@ import {
   deleteDoc,
   getDocs,
   updateDoc,
-  writeBatch
+  writeBatch,
+  addDoc
 } from 'firebase/firestore';
 
 import { AiFillPrinter, AiFillCheckCircle } from 'react-icons/ai';
@@ -108,46 +109,62 @@ function Relatorio() {
     }
 
     async function closeRelatory() {
-      setIsUploading(true);
-      const usersCollectionRef = collection(db, "users");
-      const querySnapshot = await getDocs(usersCollectionRef);
-      const storageRef = ref(storage, `backup/backup.json`);
-
-      const docsArray = querySnapshot.docs.map((doc) => doc.data());
-      const jsonString = JSON.stringify(docsArray);
-
-      const bytes = new TextEncoder().encode(jsonString);
-      const uploadTask = uploadBytes(storageRef, bytes);
-
-      await uploadTask.then((snapshot) => {
-        setIsUploading(false);
-      
+      try {
+        setIsUploading(true);
+    
+        const usersCollectionRef = collection(db, "users");
+        const querySnapshot = await getDocs(usersCollectionRef);
+    
+        const docsArray = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+    
+        const jsonString = JSON.stringify(docsArray);
+    
+        // ✔️ salvar no Firestore (substitui Storage)
+        await addDoc(collection(db, "backups"), {
+          data: docsArray,
+          json: jsonString,
+          createdAt: new Date()
+        });
+    
+        // ✔️ batch update
         const batch = writeBatch(db);
-      
-        querySnapshot.forEach((doc) => {
-          const userRef = doc.ref;
-          const contasPagas = doc.data().contasPagas;
-      
-          if (contasPagas.length > 0) {
-            batch.update(userRef, {
+    
+        querySnapshot.forEach((docSnap) => {
+          const contasPagas = docSnap.data().contasPagas || [];
+    
+          if (Array.isArray(contasPagas) && contasPagas.length > 0) {
+            batch.update(docSnap.ref, {
               contasPagas: []
             });
           }
         });
-      
-        return batch.commit();
-      }).catch((error) => {
-        setIsUploading(false);
-      });
-      
-      toast.success("Relatório mensal finalizado!", {
-        position:'top-right',
-        autoClose:5000,
-        hideProgressBar:false,
-        closeOnClick: true})
+    
+        await batch.commit();
+    
+        toast.success("Relatório mensal finalizado!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true
+        });
+    
         setTimeout(() => {
           window.location.reload();
-          }, "500");
+        }, 500);
+    
+      } catch (error) {
+        console.error(error);
+    
+        toast.error("Erro ao finalizar relatório!", {
+          position: "top-right"
+        });
+    
+      } finally {
+        setIsUploading(false);
+      }
     }
 
     function ConfirmModal({ isOpen, onClose, onConfirm }) {
