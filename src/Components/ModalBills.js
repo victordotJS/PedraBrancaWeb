@@ -1,4 +1,4 @@
-import React,{ useState, useEffect } from 'react';
+import React,{ useState, useEffect, useRef } from 'react';
 import { AiOutlineClose} from 'react-icons/ai';
 
 import Modal from 'react-modal'
@@ -14,10 +14,10 @@ import {
 function ModalEdit(props) {
     const [editingIndex, setEditingIndex] = useState(-1);
     const [editedValue, setEditedValue] = useState(0);
-    const [totalPagar, setTotalPagar] = useState(0);
+    const totalPagarRef = useRef(0);
 
     useEffect(() => {
-      setTotalPagar(props.totalapagar)
+      totalPagarRef.current = props.totalapagar;
     }, [props.totalapagar]);
 
 
@@ -30,7 +30,6 @@ const handleEditButtonClick = (index) => {
 const handleSaveOnClick = async () => {
     if (editingIndex !== null) {
       const newDetails = [...props.details];
-      
       const oldValue = newDetails[editingIndex].valor;
       
       if (newDetails[editingIndex]) {
@@ -38,24 +37,19 @@ const handleSaveOnClick = async () => {
       }
       try {
         if (!isNaN(editedValue)) {
-          const novoTotal = await new Promise((resolve) => {
-            setTotalPagar((prevTotal) => {
-              let novoTotal;
-  
-              if (editedValue > oldValue) {
-                novoTotal = prevTotal + (editedValue - oldValue);
-              } else if (editedValue < oldValue) {
-                novoTotal = prevTotal - (oldValue - editedValue);
-              } else {
-                console.log('O valor editado é igual ao valor original.');
-                novoTotal = prevTotal;
-              }
+          let novoTotal;
+          const prevTotal = totalPagarRef.current;
 
-              resolve(novoTotal);
-              return novoTotal;
-            });
-          });
-  
+          if (editedValue > oldValue) {
+            novoTotal = prevTotal + (editedValue - oldValue);
+          } else if (editedValue < oldValue) {
+            novoTotal = prevTotal - (oldValue - editedValue);
+          } else {
+            console.log('O valor editado é igual ao valor original.');
+            novoTotal = prevTotal;
+          }
+
+          totalPagarRef.current = novoTotal;
           updateContas(novoTotal, newDetails);
         } else {
           console.log('Valor inválido');
