@@ -46,12 +46,13 @@ function Home() {
     const [contasApagar, setContasApagar] = useState(undefined)
     const [contasPagas, setContasPagas] = useState(undefined)
 
-    useEffect (() => {
+    useEffect(() => {
         const getUsers = async () => {
             const data = await getDocs(usersCollectionRef);
             setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
         }
         getUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleDelete = async (id) => {
@@ -62,7 +63,6 @@ function Home() {
             hideProgressBar:false,
             closeOnClick: true})
           
-            //reload the page
             setTimeout(() => {
               window.location.reload();
               }, "1500");
@@ -159,7 +159,6 @@ function Home() {
       )}
                           <div style={{textAlign:'end'}}>
                             
-                            {/* edit */}
                           <button className='buttonsUsers'
                             data-title="Editar"
                             onClick={() =>  {
@@ -174,7 +173,6 @@ function Home() {
                             <FaPenSquare size={30} style={{marginTop:10}} color="#cc9f18" />
                             </button>
 
-                            {/* payment */}
                             <button className='buttonsUsers'
                             data-title="Pagar"
                             onClick={() =>  {
@@ -183,14 +181,12 @@ function Home() {
                             setTotalAPagar(user.total_a_pagar)
                             setContasApagar(user.contas.length)
                             setContasPagas(user.contasPagas)
-                            // console.log(user.contas)
                             handleModal()
                             }
                             }>
                             <AiFillCheckCircle size={30} style={{marginTop:10}} color="green"/>
                             </button>
                             
-                            {/* delete */}
                             <button className='buttonsUsers'
                             data-title="Deletar"
                             onClick={() =>  handleDelete(user.id)}>
@@ -218,7 +214,5 @@ function Home() {
         </div>
       )
 }
-
-
 
 export default Home

@@ -1,19 +1,13 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { db } from '../Services/firebase';
-import { storage } from '../Services/firebase';
-
-import { ref, uploadBytes } from "firebase/storage";
 
 import {
   collection,
-  doc,
-  deleteDoc,
   getDocs,
-  updateDoc,
   writeBatch,
   addDoc
 } from 'firebase/firestore';
@@ -22,10 +16,6 @@ import { AiFillPrinter, AiFillCheckCircle } from 'react-icons/ai';
 
 import { useReactToPrint } from 'react-to-print'
 import logo from '../Assets/logo.png'
-
-// import pdfMake from 'pdfmake/build/pdfmake';
-// import pdfFonts from 'pdfmake/build/vfs_fonts';
-// pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 
 function Relatorio() {
@@ -55,18 +45,17 @@ function Relatorio() {
   const sum = users?.reduce((acc, current) => 
   acc + current.total_a_pagar, 0) ?? 0;
 
-  //filtering
-
-  let filtered = 
-  users.filter(d => 
-  
-    d.status === 'pago'
-)
-
-  // const sum2 = filtered?.reduce((acc, current) => 
-  // acc + current.valorAnterior, 0) ?? 0;
-
-  // console.log(sum2)
+  const sumArray = useCallback(async () => {
+    const querySnapshot = await getDocs(usersCollectionRef);
+    let total = 0;
+    querySnapshot.forEach((doc) => {
+      const array = doc.data().contasPagas;
+      array.forEach((item) => {
+        total += item.valor;
+      });
+    });
+    setTotalRecebido(total)
+  }, [usersCollectionRef])
   
     useEffect (() => {
         const getUsers = async () => {
@@ -77,23 +66,11 @@ function Relatorio() {
         sumArray();
         var dataAtual = new Date();
         var date = new Intl.DateTimeFormat('pt-BR', 
-        {dateStyle: 'short'}).format((date));
+        {dateStyle: 'short'}).format(dataAtual);
         var hours = dataAtual.getHours();
         setDateNow(date + ' às ' + hours + 'h.');
-    }, [])
+    }, [usersCollectionRef, sumArray])
 
-
-    async function sumArray() {
-      const querySnapshot = await getDocs(usersCollectionRef);
-      let sum = 0;
-      querySnapshot.forEach((doc) => {
-        const array = doc.data().contasPagas; // substitua pelo nome do seu array
-        array.forEach((item) => {
-          sum += item.valor; // substitua "valor" pela propriedade que você deseja somar
-        });
-      });
-      setTotalRecebido(sum)
-    }
 
     function handleOpenModal() {
       setIsModalOpen(true);
@@ -122,14 +99,12 @@ function Relatorio() {
     
         const jsonString = JSON.stringify(docsArray);
     
-        // ✔️ salvar no Firestore (substitui Storage)
         await addDoc(collection(db, "backups"), {
           data: docsArray,
           json: jsonString,
           createdAt: new Date()
         });
     
-        // ✔️ batch update
         const batch = writeBatch(db);
     
         querySnapshot.forEach((docSnap) => {
@@ -267,7 +242,6 @@ function Relatorio() {
       ) : (
         <td style={{color:'green'}}>Pago</td>
       )}
-      {/* <td>{user.status}</td> */}
     </tr>
   );
 })}

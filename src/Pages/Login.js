@@ -13,7 +13,6 @@ function Login() {
   const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-
   const auth = getAuth();
   
   useEffect(() => {
@@ -33,8 +32,7 @@ function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      await signInWithEmailAndPassword(auth, email, password);
       toast.success("Logado com sucesso!", {
         position:'top-right',
         autoClose:5000,
@@ -51,7 +49,6 @@ function Login() {
   };
 
   return (
-  
     <div className="container">
     <div className="container-login">
       <div className="wrap-login">

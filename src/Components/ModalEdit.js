@@ -12,10 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { db } from '../Services/firebase';
 
 import {
-  collection,
   doc,
-  deleteDoc,
-  getDocs,
   updateDoc
 } from 'firebase/firestore';
 
@@ -47,7 +44,6 @@ function ModalEdit(props) {
         hideProgressBar:false,
         closeOnClick: true})
        
-        //reload the page
         setTimeout(() => {
         window.location.reload();
         }, "500");
