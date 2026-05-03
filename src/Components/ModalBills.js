@@ -12,16 +12,13 @@ import {
 } from 'firebase/firestore';
 
 function ModalEdit(props) {
-    const [contas, setContas] = useState([]);
-    const [totalPagar, setTotalPagar] = useState(0)
-    
     const [editingIndex, setEditingIndex] = useState(-1);
     const [editedValue, setEditedValue] = useState(0);
-  
+    const [totalPagar, setTotalPagar] = useState(0);
+
     useEffect(() => {
-      setContas(props.details)
       setTotalPagar(props.totalapagar)
-    }, [props.details, props.totalapagar]);
+    }, [props.totalapagar]);
 
 
 const handleEditButtonClick = (index) => {

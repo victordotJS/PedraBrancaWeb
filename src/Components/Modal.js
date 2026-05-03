@@ -1,19 +1,13 @@
-import React,{ useState, useEffect } from 'react';
+import React,{ useState } from 'react';
 import { AiOutlineClose} from 'react-icons/ai';
 
 import Modal from 'react-modal'
 import "../App.css";
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 import { db } from '../Services/firebase';
 
 import {
-  collection,
   doc,
-  deleteDoc,
-  getDocs,
   updateDoc
 } from 'firebase/firestore';
 
@@ -27,9 +21,9 @@ function ModalConfirm(props) {
     const handleDeleteOnClick = async () => {
       if (selectedIndex >= 0 && selectedIndex < props.details.length) {
         const newDetails = props.details.filter((_, index) => index !== selectedIndex);
-       const novoValorcontasapagar = props.contasapagar == 0 ? props.contasapagar : props.contasapagar -1
+        const novoValorcontasapagar = props.contasapagar === 0 ? props.contasapagar : props.contasapagar - 1
         await updateDoc(doc(db, 'users', props.id), {
-          status: novoValorcontasapagar == 0 ? 'pago' : 'nao-pago',
+          status: novoValorcontasapagar === 0 ? 'pago' : 'nao-pago',
           valorAnterior: props.totalapagar,
           contas_a_pagar: novoValorcontasapagar,
           total_a_pagar: props.totalapagar - props.details[selectedIndex].valor,
