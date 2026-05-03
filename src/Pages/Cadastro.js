@@ -1,19 +1,12 @@
 import React, { useState } from 'react'
 import {
-  query,
   collection,
-  onSnapshot,
-  updateDoc,
-  doc,
   addDoc,
 } from 'firebase/firestore';
 
 import { db } from '../Services/firebase';
 
-import { useNavigate } from "react-router-dom";
-
 import InputMask from 'react-input-mask';
-
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -24,11 +17,9 @@ function Cadastro() {
     const [telefone, setTelefone] = useState('')
     const [leituraAnterior, setLeituraAnterior] = useState('')
 
-    let navigate = useNavigate();
-
     const handleCadastro = async (e) => {
       e.preventDefault(e);
-      if (nome === '', endereco === '', telefone === '', leituraAnterior === '') {
+      if (nome === '' || endereco === '' || telefone === '' || leituraAnterior === '') {
         toast.error("Preencha todos os campos!", {
           position:'top-center',
           autoClose:5000,
@@ -58,9 +49,6 @@ function Cadastro() {
         autoClose:5000,
         hideProgressBar:false,
         closeOnClick: true});
-        // setTimeout(() => {
-        //   navigate("/");
-        // }, "6000");
     };
 
 

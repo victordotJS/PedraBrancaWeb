@@ -17,7 +17,6 @@ import {
   doc,
   deleteDoc,
   getDocs,
-  updateDoc
 } from 'firebase/firestore';
 
 import Modal from 'react-modal';

@@ -6,7 +6,7 @@ import "../App.css";
 
 import InputMask from 'react-input-mask';
 
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { db } from '../Services/firebase';
@@ -47,7 +47,6 @@ function ModalEdit(props) {
         setTimeout(() => {
         window.location.reload();
         }, "500");
-        
   };
 
 
@@ -96,7 +95,7 @@ function ModalEdit(props) {
     />
             <button
         className="buttonEdit"
-        onClick={() =>  handleEdit(props.idEdit)}
+        onClick={() => handleEdit(props.idEdit)}
       >
         <h3 style={{ color: 'black' }}>Editar</h3>
       </button>

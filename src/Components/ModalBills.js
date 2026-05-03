@@ -1,4 +1,4 @@
-import React,{ useState } from 'react';
+import React,{ useState, useEffect } from 'react';
 import { AiOutlineClose} from 'react-icons/ai';
 
 import Modal from 'react-modal'
@@ -11,70 +11,132 @@ import {
   updateDoc
 } from 'firebase/firestore';
 
-function ModalConfirm(props) {
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+function ModalEdit(props) {
+    const [contas, setContas] = useState([]);
+    const [totalPagar, setTotalPagar] = useState(0)
+    
+    const [editingIndex, setEditingIndex] = useState(-1);
+    const [editedValue, setEditedValue] = useState(0);
+  
+    useEffect(() => {
+      setContas(props.details)
+      setTotalPagar(props.totalapagar)
+    }, [props.details, props.totalapagar]);
 
-  const handleSelectChange = (event) => {
-    setSelectedIndex(parseInt(event.target.value));
+
+const handleEditButtonClick = (index) => {
+    setEditingIndex(index);
+    setEditedValue(props.details[index].valor);
   };
 
-    const handleDeleteOnClick = async () => {
-      if (selectedIndex >= 0 && selectedIndex < props.details.length) {
-        const newDetails = props.details.filter((_, index) => index !== selectedIndex);
-        const novoValorcontasapagar = props.contasapagar == 0 ? props.contasapagar : props.contasapagar - 1
-        await updateDoc(doc(db, 'users', props.id), {
-          status: novoValorcontasapagar == 0 ? 'pago' : 'nao-pago',
-          valorAnterior: props.totalapagar,
-          contas_a_pagar: novoValorcontasapagar,
-          total_a_pagar: props.totalapagar - props.details[selectedIndex].valor,
-          contas: newDetails,
-          contasPagas: [
-            ...props.contasPagas,
-            props.details[selectedIndex]
-          ]
-        });
-        window.location.reload();
-      } else {
-        console.log('Seleção inválida');
-      }
-    };
 
+const handleSaveOnClick = async () => {
+    if (editingIndex !== null) {
+      const newDetails = [...props.details];
+      
+      const oldValue = newDetails[editingIndex].valor;
+      
+      if (newDetails[editingIndex]) {
+        newDetails[editingIndex].valor = parseInt(editedValue)
+      }
+      try {
+        if (!isNaN(editedValue)) {
+          const novoTotal = await new Promise((resolve) => {
+            setTotalPagar((prevTotal) => {
+              let novoTotal;
+  
+              if (editedValue > oldValue) {
+                novoTotal = prevTotal + (editedValue - oldValue);
+              } else if (editedValue < oldValue) {
+                novoTotal = prevTotal - (oldValue - editedValue);
+              } else {
+                console.log('O valor editado é igual ao valor original.');
+                novoTotal = prevTotal;
+              }
+
+              resolve(novoTotal);
+              return novoTotal;
+            });
+          });
+  
+          updateContas(novoTotal, newDetails);
+        } else {
+          console.log('Valor inválido');
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      console.log('Seleção inválida');
+    }
+  };
+
+  const updateContas = async (novoTotal, newDetails) => {
+    await updateDoc(doc(db, 'users', props.idEdit), {
+        contas: newDetails,
+        total_a_pagar: novoTotal,
+      });
+      console.log('Atualizado com sucesso!')
+      setEditingIndex(null);
+      setEditedValue('');
+      window.location.reload();
+  }
 
  return (
         
         <Modal
-        key={props.id}
-        isOpen={props.show}
+        key={props.idEdit}
+        isOpen={props.showBills}
         contentLabel="Example Modal"
         overlayClassName="modal-overlay"
         className="modal-content"
         >
-
-  <h1>{}</h1>
-
-       <button onClick={props.onHide} 
+         <button onClick={props.onShowBillsHide} 
        style={{border:'none', 
        backgroundColor:"transparent"}}
        >
-       <AiOutlineClose size={30} color="black" style={{marginBottom:20}} className='closeModalBtn'/>
+       <AiOutlineClose size={30} color="black" style={{marginBottom:30}}/>
        </button>
-       
-       <select value={selectedIndex} onChange={handleSelectChange} className='select'>
-      <option value={-1}>Selecione uma conta</option>
-      {props.details.map((item, index) => (
-        <option key={index} value={index}>
-          Valor: R${item.valor}
-        </option>
-      ))}
-    </select>
 
-    <button
-        className="buttonFinishPayment"
-        onClick={handleDeleteOnClick}
-      >
-        <h3 style={{ color: 'black' }}>Pagar</h3>
-      </button>
+        <div className='editarea'>
+            <h2 style={{marginBottom:40}}>Editar contas Proprietário</h2>
+
+            {props.details.map((item, index) => (
+          <div key={index} style={{ marginBottom: '15px', borderBottom: '1px solid #ddd', paddingBottom: '10px', display: 'flex', alignItems: 'center' }}>
+            <p style={{ marginBottom: '5px', fontSize: '16px', fontWeight: 'bold', marginRight: '10px' }}>Valor: R${item.valor}</p>
+            <button
+        style={{
+          margin: '5px',
+          backgroundColor: 'green',
+          color: 'white',
+          padding: '8px 12px',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }} onClick={() => handleEditButtonClick(index)}>Editar</button>
+            {editingIndex === index && (
+              <div style={{ marginTop: '10px' }}>
+                <input
+                  type="number"
+                  value={editedValue}
+                  onChange={(e) => setEditedValue(e.target.value)}
+                  style={{ padding: '8px', marginRight: '10px', borderRadius: '5px', border: '1px solid #ddd' }}
+                />
+                <button onClick={() => handleSaveOnClick(index)}
+                style={{
+                    backgroundColor: 'green',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                  }}
+                >Salvar</button>
+              </div>
+            )}
+          </div>
+        ))}
+        </div>
+
         </Modal> 
                 
     )}
-export default ModalConfirm
+export default ModalEdit
