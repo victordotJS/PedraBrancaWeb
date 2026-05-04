@@ -18,6 +18,52 @@ import { useReactToPrint } from 'react-to-print'
 import logo from '../Assets/logo.png'
 
 
+function ConfirmModal({ isOpen, onClose, onConfirm }) {
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div className="modalConfirmation">
+      <div className="modalConfirmation-content">
+        <h3>Você tem certeza que deseja fechar o relatório mensal?</h3>
+        <div className="modalConfirmation-buttons">
+          <button
+            className='buttonConfimationRelatory'
+            style={{
+              border: 'none',
+              backgroundColor: 'red',
+              marginRight: 20,
+              width: '20%',
+              height: 30,
+              borderRadius: 7,
+              color: 'white',
+              fontSize: 16,
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+            onClick={onClose}>Não</button>
+          <button
+            className='buttonConfimationRelatory'
+            style={{
+              border: 'none',
+              backgroundColor: 'green',
+              width: '20%',
+              height: 30,
+              borderRadius: 7,
+              color: 'white',
+              fontSize: 16,
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+            onClick={onConfirm}>Sim</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 function Relatorio() {
     const [users, setUsers] = useState([]);
     const usersCollectionRef = collection(db, "users");
@@ -40,9 +86,8 @@ function Relatorio() {
       hideProgressBar:false,
       closeOnClick: true})
   })
-  
-  
-  const sum = users?.reduce((acc, current) => 
+
+  const sum = users?.reduce((acc, current) =>
   acc + current.total_a_pagar, 0) ?? 0;
 
   const sumArray = useCallback(async () => {
@@ -56,141 +101,98 @@ function Relatorio() {
     });
     setTotalRecebido(total)
   }, [usersCollectionRef])
-  
-    useEffect (() => {
-        const getUsers = async () => {
-            const data = await getDocs(usersCollectionRef);
-            setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
+
+  useEffect(() => {
+    const getUsers = async () => {
+      const data = await getDocs(usersCollectionRef);
+      setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
+    }
+    getUsers();
+    sumArray();
+    var dataAtual = new Date();
+    var date = new Intl.DateTimeFormat('pt-BR',
+    {dateStyle: 'short'}).format(dataAtual);
+    var hours = dataAtual.getHours();
+    setDateNow(date + ' às ' + hours + 'h.');
+  }, [usersCollectionRef, sumArray])
+
+
+  function handleOpenModal() {
+    setIsModalOpen(true);
+  }
+
+  function handleCloseModal() {
+    setIsModalOpen(false);
+  }
+
+  function handleConfirmModal() {
+    closeRelatory();
+    setIsModalOpen(false);
+  }
+
+  async function closeRelatory() {
+    try {
+      setIsUploading(true);
+
+      const closeCollectionRef = collection(db, "users");
+      const querySnapshot = await getDocs(closeCollectionRef);
+
+      const docsArray = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      const jsonString = JSON.stringify(docsArray);
+
+      await addDoc(collection(db, "backups"), {
+        data: docsArray,
+        json: jsonString,
+        createdAt: new Date()
+      });
+
+      const batch = writeBatch(db);
+
+      querySnapshot.forEach((docSnap) => {
+        const contasPagas = docSnap.data().contasPagas || [];
+
+        if (Array.isArray(contasPagas) && contasPagas.length > 0) {
+          batch.update(docSnap.ref, {
+            contasPagas: []
+          });
         }
-        getUsers();
-        sumArray();
-        var dataAtual = new Date();
-        var date = new Intl.DateTimeFormat('pt-BR', 
-        {dateStyle: 'short'}).format(dataAtual);
-        var hours = dataAtual.getHours();
-        setDateNow(date + ' às ' + hours + 'h.');
-    }, [usersCollectionRef, sumArray])
+      });
 
+      await batch.commit();
 
-    function handleOpenModal() {
-      setIsModalOpen(true);
-    }
-  
-    function handleCloseModal() {
-      setIsModalOpen(false);
-    }
+      toast.success("Relatório mensal finalizado!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true
+      });
 
-    function handleConfirmModal() {
-      closeRelatory();
-      setIsModalOpen(false);
-    }
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
 
-    async function closeRelatory() {
-      try {
-        setIsUploading(true);
-    
-        const usersCollectionRef = collection(db, "users");
-        const querySnapshot = await getDocs(usersCollectionRef);
-    
-        const docsArray = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-    
-        const jsonString = JSON.stringify(docsArray);
-    
-        await addDoc(collection(db, "backups"), {
-          data: docsArray,
-          json: jsonString,
-          createdAt: new Date()
-        });
-    
-        const batch = writeBatch(db);
-    
-        querySnapshot.forEach((docSnap) => {
-          const contasPagas = docSnap.data().contasPagas || [];
-    
-          if (Array.isArray(contasPagas) && contasPagas.length > 0) {
-            batch.update(docSnap.ref, {
-              contasPagas: []
-            });
-          }
-        });
-    
-        await batch.commit();
-    
-        toast.success("Relatório mensal finalizado!", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true
-        });
-    
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
-    
-      } catch (error) {
-        console.error(error);
-    
-        toast.error("Erro ao finalizar relatório!", {
-          position: "top-right"
-        });
-    
-      } finally {
-        setIsUploading(false);
-      }
-    }
+    } catch (error) {
+      console.error(error);
 
-    function ConfirmModal({ isOpen, onClose, onConfirm }) {
-      if (!isOpen) {
-        return null;
-      }
-    
-      return (
-        <div className="modalConfirmation">
-          <div className="modalConfirmation-content">
-            <h3>Você tem certeza que deseja fechar o relatório mensal?</h3>
-            <div className="modalConfirmation-buttons">
-              <button 
-              className='buttonConfimationRelatory'
-              style={{
-                border:'none', 
-                backgroundColor:'red', 
-                marginRight:20,
-                width:'20%',
-                height:30,
-                borderRadius:7,
-                color:'white',
-                fontSize:16,
-                fontWeight:'bold',
-                cursor:'pointer'
-                }} onClick={onClose}>Não</button>
-              <button 
-              className='buttonConfimationRelatory'
-              style={{
-                border:'none', 
-                backgroundColor:'green',
-                width:'20%',
-                height:30,
-                borderRadius:7,
-                color:'white',
-                fontSize:16,
-                fontWeight:'bold',
-                cursor:'pointer'
-                }} onClick={onConfirm}>Sim</button>
-            </div>
-          </div>
-        </div>
-      );
+      toast.error("Erro ao finalizar relatório!", {
+        position: "top-right"
+      });
+
+    } finally {
+      setIsUploading(false);
     }
+  }
 
   return (
     <div className='relatorio'>
       <ToastContainer></ToastContainer>
         <h1>Relatório Mensal</h1>
         <div style={{marginTop:10}}>
-        <button className='closerelatory-button' onClick={() =>  handleOpenModal()}>
+        <button className='closerelatory-button' onClick={() => handleOpenModal()}>
           <p style={{color:'#fff', fontWeight:'600'}}>Finalizar o mês</p>
           <AiFillCheckCircle size={24} style={{marginLeft:7}} color="white"/>
         </button>
@@ -201,10 +203,10 @@ function Relatorio() {
         </button>
         {isUploading && <h2>Carregando...</h2>}
         <ConfirmModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onConfirm={handleConfirmModal}
-      />
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onConfirm={handleConfirmModal}
+        />
         <div ref={componentRef}>
         <div style={{textAlign:'end'}}>
         <h3>Data de emissão: {dateNow}</h3>
@@ -216,7 +218,6 @@ function Relatorio() {
             marginTop:20
           }}/>
         <table>
-        
       <thead>
         <tr>
           <th>Nome</th>
@@ -229,22 +230,22 @@ function Relatorio() {
       </thead>
       <tbody>
       {users.sort((a, b) => a.nome.localeCompare(b.nome)).map((user) => {
-  const somaContasPagas = user.contasPagas.reduce((acc, curr) => acc + curr.valor, 0);
-  return (
-    <tr key={user.id}>
-      <td>{user.nome}</td>
-      <td>{user.telefone}</td>
-      <td>{user.leituraAnterior}m²</td>
-      <td>({user.contasPagas.length}) R${somaContasPagas}</td>
-      <td>({user.contas.length}) R${user.total_a_pagar}</td>
-      {user.status === "nao-pago" ? (
-        <td style={{color:'red'}}>Não Pago</td>
-      ) : (
-        <td style={{color:'green'}}>Pago</td>
-      )}
-    </tr>
-  );
-})}
+        const somaContasPagas = user.contasPagas.reduce((acc, curr) => acc + curr.valor, 0);
+        return (
+          <tr key={user.id}>
+            <td>{user.nome}</td>
+            <td>{user.telefone}</td>
+            <td>{user.leituraAnterior}m²</td>
+            <td>({user.contasPagas.length}) R${somaContasPagas}</td>
+            <td>({user.contas.length}) R${user.total_a_pagar}</td>
+            {user.status === "nao-pago" ? (
+              <td style={{color:'red'}}>Não Pago</td>
+            ) : (
+              <td style={{color:'green'}}>Pago</td>
+            )}
+          </tr>
+        );
+      })}
       </tbody>
     </table>
     <div>
